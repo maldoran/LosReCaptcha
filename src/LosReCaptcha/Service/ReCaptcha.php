@@ -25,27 +25,6 @@ use Zend\Stdlib\ArrayUtils;
 class ReCaptcha
 {
     /**
-     * URI to the regular API
-     *
-     * @var string
-     */
-    const API_SERVER = 'http://www.google.com/recaptcha/api';
-
-    /**
-     * URI to the secure API
-     *
-     * @var string
-     */
-    const API_SECURE_SERVER = 'https://www.google.com/recaptcha/api';
-
-    /**
-     * URI to the verify server
-     *
-     * @var string
-     */
-    const VERIFY_SERVER = 'https://www.google.com/recaptcha/api/siteverify';
-
-    /**
      * Public key used when displaying the captcha
      *
      * @var string
@@ -73,9 +52,13 @@ class ReCaptcha
      */
     protected $params = array(
         'ssl' => false, /* Use SSL or not when generating the recaptcha */
-        'xhtml' => false /* Enable XHTML output (this will not be XHTML Strict
+        'xhtml' => false, /* Enable XHTML output (this will not be XHTML Strict
                             compliant since the IFRAME is necessary when
                             Javascript is disabled) */
+        'apiServer' => 'http://www.google.com/recaptcha/api',
+        'apiSecureServer' => 'https://www.google.com/recaptcha/api',
+        'verifyServer' => 'https://www.google.com/recaptcha/api/siteverify',
+
     );
 
     /**
@@ -420,10 +403,10 @@ class ReCaptcha
             throw new Exception('Missing public key');
         }
 
-        $host = self::API_SERVER;
+        $host = $this->params['apiServer'];
 
         if ((bool) $this->params['ssl'] === true) {
-            $host = self::API_SECURE_SERVER;
+            $host = $this->params['apiSecureServer'];
         }
 
         $htmlBreak = '<br>';
@@ -485,7 +468,7 @@ HTML;
                             'response'   => $responseField);
 
         $request = new HttpRequest;
-        $request->setUri(self::VERIFY_SERVER);
+        $request->setUri($this->params['verifyServer']);
         $request->getQuery()->fromArray($queryParams);
         $request->setMethod(HttpRequest::METHOD_GET);
         $httpClient->setEncType($httpClient::ENC_URLENCODED);
